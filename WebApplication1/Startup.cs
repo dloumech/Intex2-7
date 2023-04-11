@@ -101,8 +101,8 @@ namespace WebApplication1
             app.Use(async (context, next) =>
             {
                 //csp header type and the information we are adding to the CSP header
-                context.Response.Headers.Add("Content-Security-Policy", "default-src 'self'; script-src 'self'; font-src 'self'; img-src 'self'; frame-src 'self'");
-                await next();
+                //context.Response.Headers.Add("Content-Security-Policy", "default-src 'self'; script-src 'self'; font-src 'self'; img-src 'self'; frame-src 'self'");
+                //await next();
             });
 
             app.UseEndpoints(endpoints =>

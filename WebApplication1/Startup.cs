@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using FileContextCore;
 using IdentityManagerUI.Models;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace WebApplication1
 {
@@ -30,11 +31,39 @@ namespace WebApplication1
         {
             services.AddDbContext<ApplicationDbContext>(options => options.UseFileContextDatabase());
 
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 15;
+                options.Password.RequiredUniqueChars = 0;
+
+                // Lockout settings
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = false;
+            });
+
             services.AddDefaultIdentity<ApplicationUser>()
                 .AddRoles<ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddControllersWithViews();
+
+            services.AddAuthentication();
+
+            //services.AddIdentity<ApplicationUser, IdentityRole>()
+                //.AddEntityFrameworkStores<ApplicationDbContext>()
+                //.AddDefaultTokenProviders();
+            //services.Configure<DataProtectionTokenProviderOptions>(opt =>
+                 //opt.TokenLifespan = TimeSpan.FromHours(2));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -65,7 +94,8 @@ namespace WebApplication1
                 context.User = new ClaimsPrincipal(userIdentity);
                 await next.Invoke();
             });
-            //app.UseAuthentication();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.Use(async (context, next) =>
